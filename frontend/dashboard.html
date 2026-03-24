@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — BistroReserve</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { padding-top: 72px; background: var(--cream); }
+
+    .dashboard-hero {
+      background: linear-gradient(135deg, var(--burgundy-deep), var(--burgundy-mid));
+      padding: 3rem 0 4rem;
+      position: relative; overflow: hidden;
+    }
+    .dashboard-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400') center/cover;
+      opacity: 0.07;
+    }
+    .dashboard-hero .container { position: relative; z-index: 1; }
+    .welcome-text { color: var(--gold-light); font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.4rem; }
+    .dashboard-hero h1 { color: var(--white); font-size: clamp(1.8rem,4vw,2.8rem); margin-bottom: 0.5rem; }
+    .dashboard-hero p  { color: rgba(255,255,255,0.6); font-size: 0.95rem; }
+
+    .search-bar-wrap {
+      margin-top: 2rem;
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 0.5rem 0.5rem 0.5rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+      box-shadow: var(--shadow-lg); max-width: 600px;
+    }
+    .search-bar-wrap i { color: var(--text-light); font-size: 1rem; }
+    .search-bar-wrap input {
+      flex: 1; border: none; outline: none; font-size: 0.95rem;
+      color: var(--text-dark); background: none;
+    }
+    .search-bar-wrap input::placeholder { color: var(--text-light); }
+    .search-bar-wrap button {
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--burgundy-deep); border: none; border-radius: 50px;
+      padding: 0.7rem 1.6rem; font-weight: 600; font-size: 0.88rem;
+      cursor: pointer; transition: var(--transition); white-space: nowrap;
+    }
+    .search-bar-wrap button:hover { transform: scale(1.03); }
+
+    /* Location section */
+    .section-title {
+      font-family: var(--font-display); font-size: 1.6rem;
+      color: var(--burgundy-deep); margin-bottom: 0.3rem;
+    }
+    .section-sub { color: var(--text-mid); font-size: 0.88rem; margin-bottom: 1.8rem; }
+
+    .location-grid {
+      display: grid; grid-template-columns: repeat(5,1fr); gap: 1rem;
+    }
+    .location-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      padding: 1.5rem 1rem; text-align: center; cursor: pointer;
+      border: 2px solid transparent; transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+    .location-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .location-card.active { border-color: var(--burgundy); background: var(--burgundy-deep); }
+    .location-card.active .location-name { color: var(--white); }
+    .location-card.active .location-emoji { transform: scale(1.2); }
+    .location-emoji { font-size: 2rem; margin-bottom: 0.6rem; display: block; transition: var(--transition); }
+    .location-name { font-size: 0.88rem; font-weight: 500; color: var(--text-dark); }
+
+    /* Restaurant grid */
+    .restaurants-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.8rem;
+    }
+    .rest-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      overflow: hidden; box-shadow: var(--shadow-sm);
+      transition: var(--transition); cursor: pointer;
+    }
+    .rest-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+    .rest-img { height: 200px; overflow: hidden; position: relative; }
+    .rest-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .rest-card:hover .rest-img img { transform: scale(1.07); }
+    .rest-rating-badge {
+      position: absolute; top: 1rem; right: 1rem;
+      background: rgba(45,8,18,0.85); color: var(--gold-light);
+      padding: 0.3rem 0.7rem; border-radius: 50px;
+      font-size: 0.78rem; font-weight: 600;
+      display: flex; align-items: center; gap: 0.3rem;
+      backdrop-filter: blur(4px);
+    }
+    .rest-body { padding: 1.4rem 1.6rem; }
+    .rest-body h4 { font-family: var(--font-display); font-size: 1.25rem; color: var(--burgundy-deep); margin-bottom: 0.35rem; }
+    .rest-body p  { font-size: 0.82rem; color: var(--text-mid); line-height: 1.5; margin-bottom: 1rem; }
+    .rest-footer { display: flex; align-items: center; justify-content: space-between; }
+    .rest-location { font-size: 0.78rem; color: var(--text-light); display: flex; align-items: center; gap: 0.3rem; }
+    .rest-btn {
+      background: linear-gradient(135deg, var(--burgundy-mid), var(--burgundy));
+      color: var(--white); padding: 0.45rem 1.1rem;
+      border-radius: 50px; font-size: 0.8rem; font-weight: 500;
+      transition: var(--transition);
+    }
+    .rest-btn:hover { transform: scale(1.05); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 4rem 2rem;
+      color: var(--text-mid);
+    }
+    .empty-state i { font-size: 3rem; color: var(--cream-dark); margin-bottom: 1rem; }
+    .empty-state h4 { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 0.5rem; color: var(--text-mid); }
+
+    /* Skeleton loader */
+    .skeleton {
+      background: linear-gradient(90deg, var(--cream-dark) 25%, var(--cream) 50%, var(--cream-dark) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: var(--radius-sm);
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+    .skeleton-card { background: var(--white); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+    .skeleton-img  { height: 200px; }
+    .skeleton-body { padding: 1.4rem 1.6rem; }
+    .skeleton-line { height: 14px; margin-bottom: 10px; }
+    .skeleton-line.w-60 { width: 60%; }
+    .skeleton-line.w-80 { width: 80%; }
+    .skeleton-line.w-40 { width: 40%; }
+
+    @media (max-width: 900px) {
+      .location-grid { grid-template-columns: repeat(3,1fr); }
+      .restaurants-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 600px) {
+      .location-grid { grid-template-columns: repeat(2,1fr); }
+      .restaurants-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo">🍽️ Bistro<span>Reserve</span></div>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">Home</a></li>
+    <li><a href="order-history.html">My Orders</a></li>
+    <li><a href="#" id="navUser" style="color:var(--gold-light)"></a></li>
+    <li><a href="#" id="logoutBtn" class="nav-cta">Logout</a></li>
+  </ul>
+</nav>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Hero -->
+<section class="dashboard-hero">
+  <div class="container">
+    <div class="welcome-text">Good to see you</div>
+    <h1 id="heroGreeting">Welcome back!</h1>
+    <p>Select your city and find the perfect restaurant for your next meal.</p>
+    <div class="search-bar-wrap">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="searchInput" placeholder="Search restaurants..." />
+      <button onclick="filterRestaurants()"><i class="fa-solid fa-search"></i> Search</button>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content -->
+<main class="container" style="padding: 3rem 1.5rem;">
+
+  <!-- Locations -->
+  <div style="margin-bottom: 3rem;">
+    <h2 class="section-title">Choose Your City</h2>
+    <p class="section-sub">Select a city to browse available restaurants</p>
+    <div class="location-grid" id="locationGrid">
+      <!-- Loaded by JS -->
+    </div>
+  </div>
+
+  <!-- Restaurants -->
+  <div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
+      <h2 class="section-title" id="restaurantsTitle">All Restaurants</h2>
+      <span style="font-size:0.82rem;color:var(--text-light)" id="restaurantCount"></span>
+    </div>
+    <p class="section-sub" id="restaurantsSub">Browse all available restaurants</p>
+    <div class="restaurants-grid" id="restaurantsGrid">
+      <!-- Skeleton loaders -->
+      ${[1,2,3].map(() => `
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-img"></div>
+        <div class="skeleton-body">
+          <div class="skeleton skeleton-line w-60"></div>
+          <div class="skeleton skeleton-line w-80"></div>
+          <div class="skeleton skeleton-line w-40"></div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>
+</main>
+
+<script>
+  const API = 'http://localhost:5000/api';
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user') || 'null');
+
+  // Auth guard
+  if (!token || !user) window.location.href = 'login.html';
+
+  // Set user name
+  document.getElementById('navUser').textContent = user ? user.name : '';
+  document.getElementById('heroGreeting').textContent = `Welcome back, ${user ? user.name.split(' ')[0] : 'Guest'}!`;
+
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.clear();
+    window.location.href = 'login.html';
+  });
+
+  // Navbar scroll
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+  });
+
+  function showToast(title, msg, type = 'info') {
+    const icons = { info: '🍽️', success: '✅', error: '❌' };
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `<span class="toast-icon">${icons[type]}</span>
+      <div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>
+      <button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+    c.appendChild(t);
+    setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 4000);
+  }
+
+  let allRestaurants = [];
+  let selectedLocation = null;
+
+  const locationEmojis = { 'Chennai': '🌊', 'Coimbatore': '🏔️', 'Madurai': '🛕', 'Bangalore': '🌿', 'Mumbai': '🌆' };
+
+  // Load locations
+  async function loadLocations() {
+    try {
+      const res  = await fetch(`${API}/locations`);
+      const data = await res.json();
+      const grid = document.getElementById('locationGrid');
+      grid.innerHTML = `
+        <div class="location-card active" onclick="selectLocation(null, this)">
+          <span class="location-emoji">🗺️</span>
+          <div class="location-name">All Cities</div>
+        </div>` +
+        data.locations.map(l => `
+        <div class="location-card" onclick="selectLocation(${l.id}, this)">
+          <span class="location-emoji">${locationEmojis[l.name] || '📍'}</span>
+          <div class="location-name">${l.name}</div>
+        </div>`).join('');
+    } catch (err) {
+      showToast('Error', 'Could not load locations.', 'error');
+    }
+  }
+
+  // Load restaurants
+  async function loadRestaurants(locationId = null) {
+    const grid = document.getElementById('restaurantsGrid');
+    grid.innerHTML = [1,2,3].map(() => `
+      <div class="skeleton-card">
+        <div class="skeleton skeleton-img"></div>
+        <div class="skeleton-body">
+          <div class="skeleton skeleton-line w-60"></div>
+          <div class="skeleton skeleton-line w-80"></div>
+          <div class="skeleton skeleton-line w-40"></div>
+        </div>
+      </div>`).join('');
+
+    try {
+      const url  = locationId ? `${API}/restaurants?location_id=${locationId}` : `${API}/restaurants`;
+      const res  = await fetch(url);
+      const data = await res.json();
+      allRestaurants = data.restaurants;
+      renderRestaurants(allRestaurants);
+    } catch (err) {
+      showToast('Error', 'Could not load restaurants.', 'error');
+    }
+  }
+
+  function renderRestaurants(list) {
+    const grid = document.getElementById('restaurantsGrid');
+    document.getElementById('restaurantCount').textContent = `${list.length} restaurant${list.length !== 1 ? 's' : ''} found`;
+
+    if (list.length === 0) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+        <i class="fa-solid fa-utensils"></i>
+        <h4>No Restaurants Found</h4>
+        <p>Try selecting a different city or clearing your search.</p>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = list.map(r => `
+      <div class="rest-card" onclick="goToMenu(${r.id}, '${encodeURIComponent(r.name)}')">
+        <div class="rest-img">
+          <img src="${r.image_url || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600'}"
+               alt="${r.name}" loading="lazy" />
+          <div class="rest-rating-badge"><i class="fa-solid fa-star"></i> ${r.rating}</div>
+        </div>
+        <div class="rest-body">
+          <h4>${r.name}</h4>
+          <p>${r.description || 'A wonderful dining experience awaits you.'}</p>
+          <div class="rest-footer">
+            <span class="rest-location"><i class="fa-solid fa-location-dot"></i> ${r.location_name}</span>
+            <span class="rest-btn">View Menu →</span>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+
+  function selectLocation(id, el) {
+    document.querySelectorAll('.location-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    selectedLocation = id;
+    const name = id ? el.querySelector('.location-name').textContent : 'All Cities';
+    document.getElementById('restaurantsTitle').textContent = id ? `Restaurants in ${name}` : 'All Restaurants';
+    document.getElementById('restaurantsSub').textContent   = id ? `Showing restaurants in ${name}` : 'Browse all available restaurants';
+    loadRestaurants(id);
+  }
+
+  function filterRestaurants() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    if (!q) { renderRestaurants(allRestaurants); return; }
+    const filtered = allRestaurants.filter(r =>
+      r.name.toLowerCase().includes(q) || (r.description || '').toLowerCase().includes(q)
+    );
+    renderRestaurants(filtered);
+  }
+
+  document.getElementById('searchInput').addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') filterRestaurants();
+  });
+
+  function goToMenu(id, name) {
+    localStorage.setItem('selectedRestaurant', JSON.stringify({ id, name: decodeURIComponent(name) }));
+    window.location.href = `menu.html?restaurant_id=${id}`;
+  }
+
+  // Init
+  loadLocations();
+  loadRestaurants();
+</script>
+</body>
+</html>

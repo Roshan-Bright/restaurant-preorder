@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu — BistroReserve</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { padding-top: 72px; background: var(--cream); }
+
+    /* Restaurant header */
+    .rest-header {
+      position: relative; height: 280px; overflow: hidden;
+      display: flex; align-items: flex-end;
+    }
+    .rest-header-bg { position: absolute; inset: 0; }
+    .rest-header-bg img { width: 100%; height: 100%; object-fit: cover; }
+    .rest-header-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(45,8,18,0.95) 0%, rgba(45,8,18,0.3) 70%, transparent 100%);
+    }
+    .rest-header-content {
+      position: relative; z-index: 1; padding: 2rem;
+      width: 100%;
+    }
+    .rest-header-content .back-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      color: rgba(255,255,255,0.7); font-size: 0.82rem;
+      margin-bottom: 1rem; transition: var(--transition);
+    }
+    .rest-header-content .back-btn:hover { color: var(--gold-light); }
+    .rest-header-content h1 { color: var(--white); font-size: 2.2rem; margin-bottom: 0.3rem; }
+    .rest-header-meta { display: flex; align-items: center; gap: 1.5rem; }
+    .rest-header-meta span { color: rgba(255,255,255,0.7); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; }
+    .rest-header-meta .gold { color: var(--gold-light); }
+
+    /* Layout */
+    .menu-layout {
+      display: grid; grid-template-columns: 220px 1fr;
+      gap: 2rem; max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem;
+    }
+
+    /* Category nav */
+    .category-nav {
+      position: sticky; top: 90px; height: fit-content;
+      background: var(--white); border-radius: var(--radius-lg);
+      padding: 1.4rem; box-shadow: var(--shadow-sm);
+    }
+    .category-nav h4 {
+      font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-light); margin-bottom: 1rem; font-family: var(--font-body);
+    }
+    .cat-btn {
+      display: block; width: 100%; text-align: left;
+      padding: 0.65rem 0.9rem; border-radius: var(--radius-sm);
+      font-size: 0.88rem; color: var(--text-mid);
+      background: none; cursor: pointer; transition: var(--transition);
+      border: none; margin-bottom: 0.3rem;
+    }
+    .cat-btn:hover { background: var(--cream); color: var(--burgundy); }
+    .cat-btn.active { background: var(--burgundy-deep); color: var(--white); font-weight: 500; }
+
+    /* Menu items */
+    .menu-section { margin-bottom: 3rem; }
+    .menu-section-title {
+      font-family: var(--font-display); font-size: 1.5rem;
+      color: var(--burgundy-deep); margin-bottom: 1.2rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid var(--cream-dark);
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+    .menu-items-grid {
+      display: grid; grid-template-columns: repeat(2,1fr); gap: 1.2rem;
+    }
+    .menu-item {
+      background: var(--white); border-radius: var(--radius-md);
+      padding: 1.2rem; display: flex; gap: 1rem;
+      box-shadow: var(--shadow-sm); transition: var(--transition);
+      border: 2px solid transparent;
+    }
+    .menu-item:hover { box-shadow: var(--shadow-md); border-color: var(--cream-dark); }
+    .menu-item-img {
+      width: 90px; height: 90px; border-radius: var(--radius-sm);
+      overflow: hidden; flex-shrink: 0;
+    }
+    .menu-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .menu-item-info { flex: 1; }
+    .menu-item-name { font-weight: 600; font-size: 0.95rem; color: var(--text-dark); margin-bottom: 0.3rem; }
+    .menu-item-desc { font-size: 0.78rem; color: var(--text-mid); line-height: 1.4; margin-bottom: 0.8rem; }
+    .menu-item-footer { display: flex; align-items: center; justify-content: space-between; }
+    .menu-item-price { font-weight: 700; color: var(--burgundy); font-size: 1rem; }
+    .add-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--burgundy-mid), var(--burgundy));
+      color: var(--white); font-size: 1.1rem; font-weight: 300;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition); flex-shrink: 0;
+    }
+    .add-btn:hover { transform: scale(1.15); box-shadow: var(--shadow-gold); background: linear-gradient(135deg,var(--gold),var(--gold-light)); color: var(--burgundy-deep); }
+    .qty-control {
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .qty-btn {
+      width: 28px; height: 28px; border-radius: 50%; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: var(--transition); font-weight: 600;
+    }
+    .qty-minus { background: var(--cream-dark); color: var(--text-dark); }
+    .qty-minus:hover { background: var(--error); color: var(--white); }
+    .qty-plus  { background: linear-gradient(135deg,var(--burgundy-mid),var(--burgundy)); color: var(--white); }
+    .qty-plus:hover  { transform: scale(1.1); }
+    .qty-count { font-weight: 700; font-size: 0.95rem; min-width: 20px; text-align: center; }
+
+    /* Cart button floating */
+    .cart-fab {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 500;
+      background: linear-gradient(135deg, var(--burgundy-mid), var(--burgundy));
+      color: var(--white); border: none; border-radius: 50px;
+      padding: 1rem 1.8rem; font-size: 0.95rem; font-weight: 600;
+      display: flex; align-items: center; gap: 0.75rem;
+      box-shadow: var(--shadow-lg); cursor: pointer;
+      transition: var(--transition); transform: translateY(100px);
+    }
+    .cart-fab.visible { transform: translateY(0); }
+    .cart-fab:hover { transform: translateY(-3px); box-shadow: 0 16px 50px rgba(74,14,30,0.4); }
+    .cart-fab .cart-count {
+      background: var(--gold); color: var(--burgundy-deep);
+      width: 22px; height: 22px; border-radius: 50%;
+      font-size: 0.78rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Cart Sidebar */
+    .cart-sidebar { display: flex; flex-direction: column; }
+    .cart-header {
+      padding: 1.5rem; border-bottom: 1px solid var(--cream-dark);
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--burgundy-deep);
+    }
+    .cart-header h3 { color: var(--white); font-family: var(--font-display); font-size: 1.4rem; }
+    .cart-close {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.1); color: var(--white);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; transition: var(--transition);
+    }
+    .cart-close:hover { background: rgba(255,255,255,0.2); }
+    .cart-body { flex: 1; overflow-y: auto; padding: 1.2rem; }
+    .cart-empty {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; height: 100%; text-align: center;
+      color: var(--text-light); gap: 0.75rem; padding: 2rem;
+    }
+    .cart-empty i { font-size: 3rem; color: var(--cream-dark); }
+    .cart-item {
+      display: flex; gap: 1rem; padding: 1rem 0;
+      border-bottom: 1px solid var(--cream-dark); align-items: center;
+    }
+    .cart-item-img { width: 60px; height: 60px; border-radius: var(--radius-sm); overflow: hidden; flex-shrink: 0; }
+    .cart-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .cart-item-info { flex: 1; }
+    .cart-item-name  { font-size: 0.88rem; font-weight: 600; color: var(--text-dark); margin-bottom: 0.2rem; }
+    .cart-item-price { font-size: 0.82rem; color: var(--text-mid); }
+    .cart-item-qty {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.88rem; font-weight: 600;
+    }
+    .cart-item-remove {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--cream-dark); color: var(--error);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; transition: var(--transition);
+    }
+    .cart-item-remove:hover { background: var(--error); color: var(--white); }
+
+    .cart-footer {
+      padding: 1.4rem; border-top: 2px solid var(--cream-dark);
+      background: var(--white);
+    }
+    .cart-total {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.2rem;
+    }
+    .cart-total span { font-size: 0.88rem; color: var(--text-mid); }
+    .cart-total strong { font-size: 1.25rem; color: var(--burgundy-deep); font-family: var(--font-display); }
+
+    /* DateTime modal */
+    .modal-title { font-family: var(--font-display); font-size: 1.6rem; color: var(--burgundy-deep); margin-bottom: 0.4rem; }
+    .modal-sub   { color: var(--text-mid); font-size: 0.88rem; margin-bottom: 1.8rem; }
+    .datetime-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+
+    @media (max-width: 900px) {
+      .menu-layout { grid-template-columns: 1fr; }
+      .category-nav { position: static; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .cat-btn { width: auto; }
+      .menu-items-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo">🍽️ Bistro<span>Reserve</span></div>
+  <ul class="nav-links">
+    <li><a href="dashboard.html">← Restaurants</a></li>
+    <li><a href="order-history.html">My Orders</a></li>
+    <li><a href="#" id="logoutBtn" class="nav-cta">Logout</a></li>
+  </ul>
+</nav>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Restaurant Header -->
+<div class="rest-header" id="restHeader">
+  <div class="rest-header-bg">
+    <img id="restHeaderImg" src="" alt="" />
+  </div>
+  <div class="rest-header-content">
+    <a href="dashboard.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Restaurants</a>
+    <h1 id="restHeaderName">Loading...</h1>
+    <div class="rest-header-meta">
+      <span class="gold"><i class="fa-solid fa-star"></i> <span id="restRating">—</span></span>
+      <span><i class="fa-solid fa-location-dot"></i> <span id="restLocation">—</span></span>
+    </div>
+  </div>
+</div>
+
+<!-- Menu Layout -->
+<div class="menu-layout">
+  <!-- Category Nav -->
+  <aside>
+    <div class="category-nav" id="categoryNav">
+      <h4>Menu Categories</h4>
+      <div id="catButtons"></div>
+    </div>
+  </aside>
+
+  <!-- Menu Items -->
+  <main id="menuContent">
+    <div style="text-align:center;padding:3rem;color:var(--text-light)">
+      <span class="spinner spinner-dark"></span>
+      <p style="margin-top:1rem">Loading menu...</p>
+    </div>
+  </main>
+</div>
+
+<!-- Cart FAB -->
+<button class="cart-fab" id="cartFab" onclick="openCart()">
+  <i class="fa-solid fa-basket-shopping"></i>
+  <span id="cartFabText">View Cart</span>
+  <span class="cart-count" id="cartFabCount">0</span>
+</button>
+
+<!-- Cart Sidebar -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>🛒 Your Order</h3>
+    <button class="cart-close" onclick="closeCart()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="cart-body" id="cartBody">
+    <div class="cart-empty">
+      <i class="fa-solid fa-basket-shopping"></i>
+      <p>Your cart is empty.<br>Add items from the menu!</p>
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total Amount</span>
+      <strong>₹<span id="cartTotal">0.00</span></strong>
+    </div>
+    <button class="btn btn-gold" style="width:100%" onclick="openDateTimeModal()">
+      <i class="fa-regular fa-calendar"></i> Schedule & Confirm
+    </button>
+  </div>
+</div>
+
+<!-- DateTime Modal -->
+<div class="overlay" id="dateTimeOverlay">
+  <div class="modal">
+    <p class="modal-title">Schedule Your Order</p>
+    <p class="modal-sub">Choose when you'd like your meal to be ready.</p>
+    <div class="datetime-grid">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <div class="input-icon-wrap">
+          <i class="fa-regular fa-calendar input-icon"></i>
+          <input type="date" id="scheduleDate" class="form-input" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Time</label>
+        <div class="input-icon-wrap">
+          <i class="fa-regular fa-clock input-icon"></i>
+          <input type="time" id="scheduleTime" class="form-input" />
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Special Notes (optional)</label>
+      <textarea id="orderNotes" class="form-input" rows="2" placeholder="Allergies, special requests..."></textarea>
+    </div>
+    <div style="display:flex;gap:1rem;margin-top:1rem;">
+      <button class="btn btn-outline" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:2" id="confirmOrderBtn" onclick="placeOrder()">
+        <span id="confirmBtnText"><i class="fa-solid fa-check"></i> Confirm Order</span>
+        <span id="confirmBtnSpinner" style="display:none"><span class="spinner"></span> Placing...</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Success Modal -->
+<div class="overlay" id="successOverlay">
+  <div class="modal" style="text-align:center">
+    <div style="font-size:3.5rem;margin-bottom:1rem;animation:popIn 0.5s cubic-bezier(0.34,1.56,0.64,1)">✅</div>
+    <h3 style="color:var(--success);margin-bottom:0.5rem">Order Placed!</h3>
+    <p style="color:var(--text-mid);font-size:0.9rem;margin-bottom:1.8rem">
+      Your order has been confirmed and the kitchen has been notified in real-time.
+    </p>
+    <div style="display:flex;gap:1rem">
+      <a href="order-history.html" class="btn btn-primary" style="flex:1">View My Orders</a>
+      <button class="btn btn-outline" style="flex:1" onclick="document.getElementById('successOverlay').classList.remove('active');clearCart();">Order More</button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes popIn { from{transform:scale(0)} to{transform:scale(1)} }
+</style>
+
+<script>
+  const API   = 'http://localhost:5000/api';
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user') || 'null');
+  if (!token || !user) window.location.href = 'login.html';
+
+  document.getElementById('logoutBtn').addEventListener('click', e => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
+  window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10));
+
+  const params       = new URLSearchParams(window.location.search);
+  const restaurantId = params.get('restaurant_id');
+  if (!restaurantId) window.location.href = 'dashboard.html';
+
+  let cart      = {};   // { menu_item_id: { name, price, quantity, image_url } }
+  let menuData  = {};
+
+  function showToast(title, msg, type='info') {
+    const icons = {info:'🍽️',success:'✅',error:'❌'};
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `<span class="toast-icon">${icons[type]}</span>
+      <div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>
+      <button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+    c.appendChild(t);
+    setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3500);
+  }
+
+  // Load restaurant info
+  async function loadRestaurant() {
+    try {
+      const res  = await fetch(`${API}/restaurants/${restaurantId}`);
+      const data = await res.json();
+      const r    = data.restaurant;
+      document.getElementById('restHeaderImg').src   = r.image_url || '';
+      document.getElementById('restHeaderName').textContent = r.name;
+      document.getElementById('restRating').textContent     = r.rating;
+      document.getElementById('restLocation').textContent   = r.location_name;
+      document.title = `${r.name} — BistroReserve`;
+    } catch (e) {}
+  }
+
+  // Load menu
+  async function loadMenu() {
+    try {
+      const res  = await fetch(`${API}/restaurants/${restaurantId}/menu`);
+      const data = await res.json();
+      menuData   = data.grouped;
+      renderMenu(data.grouped);
+      renderCategories(Object.keys(data.grouped));
+    } catch (err) {
+      document.getElementById('menuContent').innerHTML = `<div style="text-align:center;padding:3rem;color:var(--error)"><i class="fa-solid fa-triangle-exclamation" style="font-size:2rem"></i><p style="margin-top:1rem">Could not load menu.</p></div>`;
+    }
+  }
+
+  function renderCategories(cats) {
+    document.getElementById('catButtons').innerHTML =
+      cats.map((c,i) => `<button class="cat-btn ${i===0?'active':''}" onclick="scrollToCategory('${c}', this)">${c}</button>`).join('');
+  }
+
+  function scrollToCategory(cat, btn) {
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const el = document.getElementById(`cat-${cat.replace(/\s+/g,'-')}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  const catEmojis = {'Seafood':'🦐','Main Course':'🍛','Starters':'🥗','Desserts':'🍮','Beverages':'☕','Salads':'🥗','Breads':'🫓','Breakfast':'🍳'};
+
+  function renderMenu(grouped) {
+    const content = document.getElementById('menuContent');
+    content.innerHTML = Object.entries(grouped).map(([cat, items]) => `
+      <div class="menu-section" id="cat-${cat.replace(/\s+/g,'-')}">
+        <div class="menu-section-title">${catEmojis[cat]||'🍽️'} ${cat}</div>
+        <div class="menu-items-grid">
+          ${items.map(item => `
+          <div class="menu-item" id="item-${item.id}">
+            <div class="menu-item-img">
+              <img src="${item.image_url||'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200'}"
+                   alt="${item.name}" loading="lazy" />
+            </div>
+            <div class="menu-item-info">
+              <div class="menu-item-name">${item.name}</div>
+              <div class="menu-item-desc">${item.description||''}</div>
+              <div class="menu-item-footer">
+                <span class="menu-item-price">₹${parseFloat(item.price).toFixed(2)}</span>
+                <div id="ctrl-${item.id}">
+                  <button class="add-btn" onclick="addToCart(${item.id},'${encodeURIComponent(item.name)}',${item.price},'${item.image_url||''}')">+</button>
+                </div>
+              </div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>`).join('');
+  }
+
+  function addToCart(id, name, price, img) {
+    name = decodeURIComponent(name);
+    if (cart[id]) { cart[id].quantity++; }
+    else { cart[id] = { name, price: parseFloat(price), quantity: 1, image_url: img }; }
+    updateCartUI();
+    updateItemControl(id);
+    showToast('Added!', `${name} added to cart`, 'success');
+  }
+
+  function changeQty(id, delta) {
+    if (!cart[id]) return;
+    cart[id].quantity += delta;
+    if (cart[id].quantity <= 0) { delete cart[id]; }
+    updateCartUI();
+    updateItemControl(id);
+  }
+
+  function updateItemControl(id) {
+    const ctrl = document.getElementById(`ctrl-${id}`);
+    if (!ctrl) return;
+    const item = cart[id];
+    if (!item) {
+      // find price and name from DOM
+      const row = document.getElementById(`item-${id}`);
+      const name = row ? encodeURIComponent(row.querySelector('.menu-item-name').textContent) : '';
+      const price= row ? row.querySelector('.menu-item-price').textContent.replace('₹','') : 0;
+      const img  = row ? row.querySelector('img').src : '';
+      ctrl.innerHTML = `<button class="add-btn" onclick="addToCart(${id},'${name}',${price},'${img}')">+</button>`;
+    } else {
+      ctrl.innerHTML = `<div class="qty-control">
+        <button class="qty-btn qty-minus" onclick="changeQty(${id},-1)">−</button>
+        <span class="qty-count">${item.quantity}</span>
+        <button class="qty-btn qty-plus" onclick="changeQty(${id},1)">+</button>
+      </div>`;
+    }
+  }
+
+  function updateCartUI() {
+    const items = Object.entries(cart);
+    const total = items.reduce((s,[,v]) => s + v.price * v.quantity, 0);
+    const count = items.reduce((s,[,v]) => s + v.quantity, 0);
+
+    // FAB
+    const fab = document.getElementById('cartFab');
+    if (count > 0) {
+      fab.classList.add('visible');
+      document.getElementById('cartFabText').textContent = `View Cart (${count})`;
+      document.getElementById('cartFabCount').textContent = count;
+    } else {
+      fab.classList.remove('visible');
+    }
+
+    // Total
+    document.getElementById('cartTotal').textContent = total.toFixed(2);
+
+    // Cart body
+    const body = document.getElementById('cartBody');
+    if (items.length === 0) {
+      body.innerHTML = `<div class="cart-empty"><i class="fa-solid fa-basket-shopping"></i><p>Your cart is empty.<br>Add items from the menu!</p></div>`;
+      return;
+    }
+    body.innerHTML = items.map(([id, item]) => `
+      <div class="cart-item">
+        <div class="cart-item-img"><img src="${item.image_url||'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100'}" alt="${item.name}"/></div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-price">₹${item.price.toFixed(2)} each</div>
+        </div>
+        <div class="cart-item-qty">
+          <button class="qty-btn qty-minus" onclick="changeQty(${id},-1)" style="width:24px;height:24px;font-size:0.9rem">−</button>
+          <span>${item.quantity}</span>
+          <button class="qty-btn qty-plus" onclick="changeQty(${id},1)" style="width:24px;height:24px;font-size:0.9rem">+</button>
+        </div>
+        <button class="cart-item-remove" onclick="changeQty(${id}, -${item.quantity})"><i class="fa-solid fa-xmark"></i></button>
+      </div>`).join('');
+  }
+
+  function openCart()  { document.getElementById('cartSidebar').classList.add('open'); document.getElementById('cartOverlay').classList.add('active'); }
+  function closeCart() { document.getElementById('cartSidebar').classList.remove('open'); document.getElementById('cartOverlay').classList.remove('active'); }
+
+  function openDateTimeModal() {
+    if (Object.keys(cart).length === 0) { showToast('Empty Cart', 'Add at least one item first.', 'error'); return; }
+    closeCart();
+    // Set min date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('scheduleDate').min = today;
+    document.getElementById('scheduleDate').value = today;
+    document.getElementById('scheduleTime').value = '12:00';
+    document.getElementById('dateTimeOverlay').classList.add('active');
+  }
+
+  function closeModal() { document.getElementById('dateTimeOverlay').classList.remove('active'); }
+
+  async function placeOrder() {
+    const date  = document.getElementById('scheduleDate').value;
+    const time  = document.getElementById('scheduleTime').value;
+    const notes = document.getElementById('orderNotes').value;
+
+    if (!date || !time) { showToast('Required', 'Please select a date and time.', 'error'); return; }
+
+    document.getElementById('confirmBtnText').style.display    = 'none';
+    document.getElementById('confirmBtnSpinner').style.display = 'flex';
+    document.getElementById('confirmOrderBtn').disabled = true;
+
+    const items = Object.entries(cart).map(([menu_item_id, v]) => ({ menu_item_id: parseInt(menu_item_id), quantity: v.quantity }));
+
+    try {
+      const res  = await fetch(`${API}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ restaurant_id: parseInt(restaurantId), scheduled_date: date, scheduled_time: time, notes, items }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        closeModal();
+        document.getElementById('successOverlay').classList.add('active');
+        clearCart();
+      } else {
+        showToast('Order Failed', data.message, 'error');
+      }
+    } catch (err) {
+      showToast('Error', 'Could not place order. Is backend running?', 'error');
+    } finally {
+      document.getElementById('confirmBtnText').style.display    = 'flex';
+      document.getElementById('confirmBtnSpinner').style.display = 'none';
+      document.getElementById('confirmOrderBtn').disabled = false;
+    }
+  }
+
+  function clearCart() {
+    cart = {};
+    updateCartUI();
+    document.querySelectorAll('[id^="ctrl-"]').forEach(ctrl => {
+      const id = ctrl.id.replace('ctrl-','');
+      const row = document.getElementById(`item-${id}`);
+      if (!row) return;
+      const name  = encodeURIComponent(row.querySelector('.menu-item-name').textContent);
+      const price = row.querySelector('.menu-item-price').textContent.replace('₹','');
+      const img   = row.querySelector('img').src;
+      ctrl.innerHTML = `<button class="add-btn" onclick="addToCart(${id},'${name}',${price},'${img}')">+</button>`;
+    });
+  }
+
+  // Init
+  loadRestaurant();
+  loadMenu();
+</script>
+</body>
+</html>

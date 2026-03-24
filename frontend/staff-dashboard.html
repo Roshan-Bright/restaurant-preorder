@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Dashboard — BistroReserve</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <style>
+    body { padding-top: 72px; background: var(--charcoal); color: var(--white); }
+
+    .staff-navbar {
+      background: rgba(28,28,30,0.98) !important;
+      border-bottom: 1px solid rgba(201,151,58,0.25) !important;
+    }
+
+    /* Header */
+    .staff-header {
+      background: linear-gradient(135deg, #0f0f10, #1c1c1e);
+      padding: 2.5rem 0;
+      border-bottom: 1px solid rgba(201,151,58,0.15);
+    }
+    .staff-header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .staff-header h1 { color: var(--white); font-size: 1.8rem; }
+    .staff-header p  { color: rgba(255,255,255,0.45); font-size: 0.85rem; }
+    .live-badge {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: rgba(39,174,96,0.15); border: 1px solid rgba(39,174,96,0.3);
+      color: #2ecc71; padding: 0.4rem 1rem; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .live-dot {
+      width: 8px; height: 8px; background: #2ecc71;
+      border-radius: 50%; animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(5,1fr); gap: 1rem;
+      margin: 2rem 0;
+    }
+    .stat-box {
+      background: #2a2a2e; border-radius: var(--radius-md);
+      padding: 1.2rem; text-align: center;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: var(--transition);
+    }
+    .stat-box:hover { border-color: rgba(201,151,58,0.3); }
+    .stat-box .val {
+      font-family: var(--font-display); font-size: 2rem;
+      font-weight: 700; line-height: 1;
+    }
+    .stat-box .lbl { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.4rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .val-total    { color: var(--gold); }
+    .val-pending  { color: #f39c12; }
+    .val-confirm  { color: #3498db; }
+    .val-ready    { color: #2ecc71; }
+    .val-revenue  { color: var(--gold-light); }
+
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .tab-btn {
+      padding: 0.5rem 1.2rem; border-radius: 50px;
+      font-size: 0.82rem; font-weight: 500; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #2a2a2e; color: rgba(255,255,255,0.6);
+      transition: var(--transition);
+    }
+    .tab-btn:hover { border-color: rgba(201,151,58,0.4); color: var(--gold-light); }
+    .tab-btn.active { background: var(--gold); color: var(--burgundy-deep); border-color: var(--gold); font-weight: 700; }
+
+    /* Orders table */
+    .orders-table-wrap {
+      background: #2a2a2e; border-radius: var(--radius-lg);
+      overflow: hidden; border: 1px solid rgba(255,255,255,0.06);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: rgba(201,151,58,0.1); }
+    thead th {
+      padding: 1rem 1.2rem; text-align: left;
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: var(--transition);
+    }
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+    tbody tr.new-order { animation: newOrderFlash 1.5s ease; }
+    @keyframes newOrderFlash {
+      0%,100% { background: transparent; }
+      30%     { background: rgba(201,151,58,0.15); }
+    }
+    tbody td {
+      padding: 1rem 1.2rem; font-size: 0.85rem; color: rgba(255,255,255,0.8);
+      vertical-align: middle;
+    }
+    .td-id       { color: rgba(255,255,255,0.35); font-size: 0.78rem; }
+    .td-customer strong { color: var(--white); display: block; }
+    .td-customer span   { font-size: 0.75rem; color: rgba(255,255,255,0.35); }
+    .td-restaurant { color: var(--gold-light); font-weight: 500; }
+    .td-schedule { font-size: 0.8rem; }
+    .td-items    { max-width: 200px; }
+    .item-pill {
+      display: inline-block; background: rgba(255,255,255,0.07);
+      border-radius: 4px; padding: 0.15rem 0.5rem;
+      font-size: 0.72rem; margin: 0.1rem; color: rgba(255,255,255,0.6);
+    }
+    .td-total { font-weight: 700; color: var(--gold); font-size: 0.95rem; }
+
+    .status-select {
+      background: #1c1c1e; color: var(--white);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50px; padding: 0.35rem 0.8rem;
+      font-size: 0.78rem; cursor: pointer;
+      transition: var(--transition);
+    }
+    .status-select:focus { border-color: var(--gold); outline: none; }
+
+    /* New order toast (special staff variant) */
+    .order-toast {
+      position: fixed; top: 90px; right: 1.5rem; z-index: 9999;
+      background: #2a2a2e; border: 1px solid rgba(201,151,58,0.4);
+      border-left: 4px solid var(--gold);
+      border-radius: var(--radius-md); padding: 1.2rem 1.4rem;
+      min-width: 320px; box-shadow: var(--shadow-lg);
+      animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .order-toast-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .order-toast-header span { font-weight: 700; color: var(--gold-light); font-size: 0.9rem; }
+    .order-toast-body { font-size: 0.82rem; color: rgba(255,255,255,0.7); line-height: 1.5; }
+    .order-toast-close { position: absolute; top: 0.6rem; right: 0.8rem; background: none; color: rgba(255,255,255,0.35); font-size: 1rem; }
+    .order-toast-close:hover { color: var(--white); }
+
+    /* Empty state */
+    .empty-table { text-align: center; padding: 4rem 2rem; color: rgba(255,255,255,0.3); }
+    .empty-table i { font-size: 3rem; margin-bottom: 1rem; }
+
+    @media (max-width: 1024px) { .stats-grid { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 768px)  { .stats-grid { grid-template-columns: repeat(2,1fr); } table { font-size: 0.78rem; } }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar staff-navbar" id="navbar">
+  <div class="nav-logo">🍽️ Bistro<span>Reserve</span> <span style="color:rgba(255,255,255,0.3);font-size:0.75rem;margin-left:0.5rem">STAFF</span></div>
+  <ul class="nav-links">
+    <li><span id="navStaffName" style="color:var(--gold-light);font-size:0.85rem"></span></li>
+    <li><a href="#" id="logoutBtn" class="nav-cta">Logout</a></li>
+  </ul>
+</nav>
+
+<div id="orderToastContainer" style="position:fixed;top:90px;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:0.75rem;"></div>
+
+<!-- Header -->
+<div class="staff-header">
+  <div class="container">
+    <div class="staff-header-inner">
+      <div>
+        <h1>Staff Dashboard</h1>
+        <p>Real-time order management — <span id="currentDate"></span></p>
+      </div>
+      <div class="live-badge"><div class="live-dot"></div> LIVE</div>
+    </div>
+  </div>
+</div>
+
+<main class="container" style="padding: 1.5rem;">
+
+  <!-- Stats -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-box"><div class="val val-total" id="sTotal">—</div><div class="lbl">Total Orders</div></div>
+    <div class="stat-box"><div class="val val-pending" id="sPending">—</div><div class="lbl">Pending</div></div>
+    <div class="stat-box"><div class="val val-confirm" id="sConfirmed">—</div><div class="lbl">Confirmed</div></div>
+    <div class="stat-box"><div class="val val-ready" id="sReady">—</div><div class="lbl">Ready</div></div>
+    <div class="stat-box"><div class="val val-revenue" id="sRevenue">—</div><div class="lbl">Revenue</div></div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-tabs" id="filterTabs">
+    <button class="tab-btn active" onclick="filterOrders('', this)">All</button>
+    <button class="tab-btn" onclick="filterOrders('Pending', this)">⏳ Pending</button>
+    <button class="tab-btn" onclick="filterOrders('Confirmed', this)">✅ Confirmed</button>
+    <button class="tab-btn" onclick="filterOrders('Preparing', this)">👨‍🍳 Preparing</button>
+    <button class="tab-btn" onclick="filterOrders('Ready', this)">🔔 Ready</button>
+    <button class="tab-btn" onclick="filterOrders('Completed', this)">🎉 Completed</button>
+    <button class="tab-btn" onclick="filterOrders('Cancelled', this)">❌ Cancelled</button>
+    <span style="flex:1"></span>
+    <button class="tab-btn" onclick="loadOrders()" style="background:rgba(201,151,58,0.1);border-color:rgba(201,151,58,0.3);color:var(--gold)">
+      <i class="fa-solid fa-rotate"></i> Refresh
+    </button>
+  </div>
+
+  <!-- Orders table -->
+  <div class="orders-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Restaurant</th>
+          <th>Scheduled</th>
+          <th>Items</th>
+          <th>Total</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTableBody">
+        <tr><td colspan="7"><div class="empty-table"><span class="spinner"></span><p style="margin-top:1rem">Loading orders...</p></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+  const API   = 'http://localhost:5000/api';
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user') || 'null');
+
+  // Auth guard — only staff/admin
+  if (!token || !user || (user.role !== 'staff' && user.role !== 'admin')) {
+    window.location.href = 'login.html';
+  }
+
+  document.getElementById('navStaffName').textContent = user ? user.name : '';
+  document.getElementById('currentDate').textContent  = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  document.getElementById('logoutBtn').addEventListener('click', e => { e.preventDefault(); localStorage.clear(); window.location.href = 'login.html'; });
+  window.addEventListener('scroll', () => document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10));
+
+  let allOrders   = [];
+  let activeFilter = '';
+
+  // ── Socket.IO ───────────────────────────────────────────────
+  const socket = io('http://localhost:5000');
+  socket.on('connect', () => {
+    socket.emit('join_room', { role: user.role });
+    console.log('Staff socket connected:', socket.id);
+  });
+
+  socket.on('new_order', (order) => {
+    // Add to local list
+    allOrders.unshift(order);
+    updateStats(allOrders);
+    filterOrders(activeFilter);
+
+    // Flash the new row
+    setTimeout(() => {
+      const row = document.getElementById(`row-${order.id}`);
+      if (row) row.classList.add('new-order');
+    }, 100);
+
+    // Show notification toast
+    showOrderToast(order);
+    // Browser notification
+    if (Notification.permission === 'granted') {
+      new Notification('🍽️ New Order!', {
+        body: `${order.customer_name} ordered from ${order.restaurant_name}`,
+        icon: '/favicon.ico'
+      });
+    }
+  });
+
+  socket.on('order_status_update', ({ order_id, status }) => {
+    const order = allOrders.find(o => o.id == order_id);
+    if (order) { order.status = status; filterOrders(activeFilter); updateStats(allOrders); }
+  });
+
+  // ── Toast ────────────────────────────────────────────────────
+  function showOrderToast(order) {
+    const c = document.getElementById('orderToastContainer');
+    const t = document.createElement('div');
+    t.className = 'order-toast';
+    t.style.position = 'relative';
+    t.innerHTML = `
+      <div class="order-toast-header">
+        <span>🔔 New Order #${order.id}</span>
+      </div>
+      <div class="order-toast-body">
+        <strong style="color:var(--white)">${order.customer_name}</strong> ordered from
+        <span style="color:var(--gold-light)">${order.restaurant_name}</span><br>
+        Scheduled: ${new Date(order.scheduled_date).toLocaleDateString('en-IN')} at ${order.scheduled_time}<br>
+        Total: <strong style="color:var(--gold)">₹${parseFloat(order.total_price).toFixed(2)}</strong>
+      </div>
+      <button class="order-toast-close" onclick="this.parentElement.remove()">×</button>`;
+    c.appendChild(t);
+    setTimeout(() => { t.style.animation = 'toastOut 0.3s ease forwards'; setTimeout(() => t.remove(), 300); }, 8000);
+  }
+
+  // ── Load orders ──────────────────────────────────────────────
+  async function loadOrders() {
+    try {
+      const res  = await fetch(`${API}/orders`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const data = await res.json();
+      allOrders  = data.orders || [];
+      updateStats(allOrders);
+      filterOrders(activeFilter);
+    } catch (err) {
+      document.getElementById('ordersTableBody').innerHTML = `<tr><td colspan="7"><div class="empty-table"><i class="fa-solid fa-triangle-exclamation"></i><p>Could not load orders.</p></div></td></tr>`;
+    }
+  }
+
+  function updateStats(orders) {
+    document.getElementById('sTotal').textContent     = orders.length;
+    document.getElementById('sPending').textContent   = orders.filter(o => o.status === 'Pending').length;
+    document.getElementById('sConfirmed').textContent = orders.filter(o => o.status === 'Confirmed').length;
+    document.getElementById('sReady').textContent     = orders.filter(o => o.status === 'Ready').length;
+    const rev = orders.reduce((s,o) => s + parseFloat(o.total_price), 0);
+    document.getElementById('sRevenue').textContent   = '₹' + rev.toFixed(0);
+  }
+
+  function filterOrders(status, btn) {
+    activeFilter = status;
+    if (btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    const filtered = status ? allOrders.filter(o => o.status === status) : allOrders;
+    renderTable(filtered);
+  }
+
+  const statusColors = {
+    'Pending':'badge-pending','Confirmed':'badge-confirmed','Preparing':'badge-preparing',
+    'Ready':'badge-ready','Completed':'badge-completed','Cancelled':'badge-cancelled'
+  };
+  const statusOptions = ['Pending','Confirmed','Preparing','Ready','Completed','Cancelled'];
+
+  function renderTable(orders) {
+    const tbody = document.getElementById('ordersTableBody');
+    if (orders.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-table"><i class="fa-solid fa-receipt"></i><p>No orders found.</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = orders.map(o => {
+      const d    = new Date(o.scheduled_date).toLocaleDateString('en-IN', { day:'numeric', month:'short' });
+      const items= (o.items||[]).map(i => `<span class="item-pill">${i.quantity}× ${i.name}</span>`).join('');
+      const opts = statusOptions.map(s => `<option value="${s}" ${s===o.status?'selected':''}>${s}</option>`).join('');
+      return `
+      <tr id="row-${o.id}">
+        <td class="td-id">#${o.id}</td>
+        <td class="td-customer"><strong>${o.customer_name}</strong><span>${o.customer_phone||'—'}</span></td>
+        <td class="td-restaurant">${o.restaurant_name}</td>
+        <td class="td-schedule">${d}<br>${o.scheduled_time}</td>
+        <td class="td-items">${items}</td>
+        <td class="td-total">₹${parseFloat(o.total_price).toFixed(2)}</td>
+        <td>
+          <select class="status-select" onchange="updateStatus(${o.id}, this.value)">
+            ${opts}
+          </select>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function updateStatus(orderId, status) {
+    try {
+      const res  = await fetch(`${API}/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const order = allOrders.find(o => o.id == orderId);
+        if (order) order.status = status;
+        updateStats(allOrders);
+        // Show mini toast
+        const c = document.getElementById('orderToastContainer');
+        const t = document.createElement('div');
+        t.className = 'toast toast-success';
+        t.innerHTML = `<span class="toast-icon">✅</span><div><div class="toast-title">Status Updated</div><div class="toast-msg">Order #${orderId} → ${status}</div></div><button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+        c.appendChild(t);
+        setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 3000);
+      }
+    } catch (err) {
+      console.error('Status update error:', err);
+    }
+  }
+
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  loadOrders();
+</script>
+</body>
+</html>

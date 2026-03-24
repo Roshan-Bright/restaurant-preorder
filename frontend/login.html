@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — BistroReserve</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { background: var(--burgundy-deep); min-height: 100vh; display: flex; flex-direction: column; }
+
+    .auth-wrapper {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh;
+    }
+
+    .auth-left {
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 3rem;
+    }
+    .auth-left-bg {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1000') center/cover no-repeat;
+    }
+    .auth-left-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(45,8,18,0.95) 0%, rgba(45,8,18,0.4) 60%, transparent 100%);
+    }
+    .auth-left-content { position: relative; z-index: 1; }
+    .auth-left-content h2 {
+      font-family: var(--font-display); font-size: 2.8rem;
+      color: var(--white); margin-bottom: 0.75rem; line-height: 1.1;
+    }
+    .auth-left-content h2 em { color: var(--gold-light); font-style: italic; }
+    .auth-left-content p { color: rgba(255,255,255,0.65); font-size: 0.95rem; max-width: 380px; }
+    .auth-left-logo {
+      position: absolute; top: 2.5rem; left: 3rem; z-index: 1;
+      font-family: var(--font-display); font-size: 1.5rem;
+      font-weight: 700; color: var(--gold);
+    }
+    .auth-left-logo span { color: var(--white); font-weight: 300; }
+
+    .auth-right {
+      background: var(--cream); display: flex;
+      align-items: center; justify-content: center; padding: 3rem 2rem;
+    }
+    .auth-box { width: 100%; max-width: 420px; animation: pageEnter 0.5s ease; }
+    .auth-box-header { margin-bottom: 2.2rem; }
+    .auth-box-header h3 {
+      font-family: var(--font-display); font-size: 2rem;
+      color: var(--burgundy-deep); margin-bottom: 0.4rem;
+    }
+    .auth-box-header p { color: var(--text-mid); font-size: 0.9rem; }
+    .auth-box-header p a { color: var(--gold); font-weight: 500; }
+    .auth-box-header p a:hover { text-decoration: underline; }
+
+    .btn-submit {
+      width: 100%; padding: 1rem; font-size: 1rem;
+      background: linear-gradient(135deg, var(--burgundy-mid), var(--burgundy-deep));
+      color: var(--white); border-radius: var(--radius-md);
+      font-weight: 600; letter-spacing: 0.04em;
+      box-shadow: var(--shadow-md); transition: var(--transition);
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+    .staff-note {
+      margin-top: 2rem; padding: 1rem 1.2rem;
+      background: rgba(74,14,30,0.06);
+      border: 1px solid rgba(74,14,30,0.12);
+      border-radius: var(--radius-md);
+      font-size: 0.8rem; color: var(--text-mid);
+    }
+    .staff-note strong { color: var(--burgundy); }
+
+    .password-toggle {
+      position: absolute; right: 1rem; top: 50%;
+      transform: translateY(-50%); background: none;
+      color: var(--text-light); font-size: 0.9rem;
+      cursor: pointer; transition: var(--transition);
+    }
+    .password-toggle:hover { color: var(--gold); }
+
+    @media (max-width: 768px) {
+      .auth-wrapper { grid-template-columns: 1fr; }
+      .auth-left { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="auth-wrapper">
+  <!-- Left panel -->
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <a href="index.html" class="auth-left-logo">🍽️ Bistro<span>Reserve</span></a>
+    <div class="auth-left-content">
+      <h2>Welcome<br><em>Back,</em><br>Foodie.</h2>
+      <p>Your favourite tables are waiting. Sign in and pick up right where you left off.</p>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="auth-right">
+    <div class="auth-box">
+      <div class="auth-box-header">
+        <h3>Sign In</h3>
+        <p>Don't have an account? <a href="register.html">Create one free</a></p>
+      </div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="fa-regular fa-envelope input-icon"></i>
+            <input type="email" id="email" class="form-input" placeholder="john@example.com" />
+          </div>
+          <div class="form-error" id="emailError"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-icon-wrap" style="position:relative">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="password" class="form-input" placeholder="Your password" style="padding-right:3rem" />
+            <button type="button" class="password-toggle" id="togglePassword">
+              <i class="fa-regular fa-eye" id="toggleIcon"></i>
+            </button>
+          </div>
+          <div class="form-error" id="passwordError"></div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span id="btnText"><i class="fa-solid fa-right-to-bracket"></i> Sign In</span>
+          <span id="btnSpinner" style="display:none"><span class="spinner"></span> Signing in...</span>
+        </button>
+      </form>
+
+      <div class="staff-note">
+        <strong>Staff / Admin?</strong> Use your staff credentials to log in. You'll be redirected to the staff dashboard automatically.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:5000/api';
+
+  // Redirect if already logged in
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user') || 'null');
+  if (token && user) {
+    window.location.href = (user.role === 'staff' || user.role === 'admin')
+      ? 'staff-dashboard.html' : 'dashboard.html';
+  }
+
+  function showToast(title, msg, type = 'info') {
+    const icons = { info: '🍽️', success: '✅', error: '❌' };
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `
+      <span class="toast-icon">${icons[type]}</span>
+      <div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>
+      <button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+    c.appendChild(t);
+    setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 4000);
+  }
+
+  document.getElementById('togglePassword').addEventListener('click', function () {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('toggleIcon');
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    icon.className = show ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    let valid = true;
+
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    document.getElementById('emailError').classList.remove('show');
+    document.getElementById('passwordError').classList.remove('show');
+
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      document.getElementById('emailError').textContent = 'Please enter a valid email.';
+      document.getElementById('emailError').classList.add('show');
+      valid = false;
+    }
+    if (!password) {
+      document.getElementById('passwordError').textContent = 'Password is required.';
+      document.getElementById('passwordError').classList.add('show');
+      valid = false;
+    }
+    if (!valid) return;
+
+    document.getElementById('btnText').style.display    = 'none';
+    document.getElementById('btnSpinner').style.display = 'flex';
+    document.getElementById('submitBtn').disabled = true;
+
+    try {
+      const res  = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        showToast('Welcome back!', `Hello, ${data.user.name}`, 'success');
+        setTimeout(() => {
+          if (data.user.role === 'staff' || data.user.role === 'admin') {
+            window.location.href = 'staff-dashboard.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
+        }, 1000);
+      } else {
+        showToast('Login Failed', data.message, 'error');
+      }
+    } catch (err) {
+      showToast('Connection Error', 'Cannot reach the server. Is it running?', 'error');
+    } finally {
+      document.getElementById('btnText').style.display    = 'flex';
+      document.getElementById('btnSpinner').style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

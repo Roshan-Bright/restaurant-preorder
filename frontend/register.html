@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — BistroReserve</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { background: var(--burgundy-deep); min-height: 100vh; display: flex; flex-direction: column; }
+
+    .auth-wrapper {
+      flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh;
+    }
+
+    /* Left panel */
+    .auth-left {
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 3rem;
+    }
+    .auth-left-bg {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1000') center/cover no-repeat;
+    }
+    .auth-left-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(45,8,18,0.95) 0%, rgba(45,8,18,0.4) 60%, transparent 100%);
+    }
+    .auth-left-content { position: relative; z-index: 1; }
+    .auth-left-content h2 {
+      font-family: var(--font-display); font-size: 2.8rem;
+      color: var(--white); margin-bottom: 0.75rem; line-height: 1.1;
+    }
+    .auth-left-content h2 em { color: var(--gold-light); font-style: italic; }
+    .auth-left-content p { color: rgba(255,255,255,0.65); font-size: 0.95rem; max-width: 380px; }
+    .auth-left-logo {
+      position: absolute; top: 2.5rem; left: 3rem; z-index: 1;
+      font-family: var(--font-display); font-size: 1.5rem;
+      font-weight: 700; color: var(--gold);
+    }
+    .auth-left-logo span { color: var(--white); font-weight: 300; }
+
+    /* Right panel */
+    .auth-right {
+      background: var(--cream); display: flex;
+      align-items: center; justify-content: center;
+      padding: 3rem 2rem;
+    }
+    .auth-box {
+      width: 100%; max-width: 440px;
+      animation: pageEnter 0.5s ease;
+    }
+    .auth-box-header { margin-bottom: 2.2rem; }
+    .auth-box-header h3 {
+      font-family: var(--font-display); font-size: 2rem;
+      color: var(--burgundy-deep); margin-bottom: 0.4rem;
+    }
+    .auth-box-header p { color: var(--text-mid); font-size: 0.9rem; }
+
+    .auth-box-header p a { color: var(--gold); font-weight: 500; }
+    .auth-box-header p a:hover { text-decoration: underline; }
+
+    .name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .auth-divider {
+      display: flex; align-items: center; gap: 1rem;
+      margin: 1.5rem 0; color: var(--text-light); font-size: 0.82rem;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--cream-dark);
+    }
+
+    .btn-submit {
+      width: 100%; padding: 1rem; font-size: 1rem;
+      background: linear-gradient(135deg, var(--burgundy-mid), var(--burgundy-deep));
+      color: var(--white); border-radius: var(--radius-md);
+      font-weight: 600; letter-spacing: 0.04em;
+      box-shadow: var(--shadow-md); transition: var(--transition);
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+
+    .terms-note {
+      text-align: center; font-size: 0.78rem;
+      color: var(--text-light); margin-top: 1rem; line-height: 1.5;
+    }
+
+    .password-toggle {
+      position: absolute; right: 1rem; top: 50%;
+      transform: translateY(-50%); background: none;
+      color: var(--text-light); font-size: 0.9rem;
+      cursor: pointer; transition: var(--transition);
+    }
+    .password-toggle:hover { color: var(--gold); }
+
+    @media (max-width: 768px) {
+      .auth-wrapper { grid-template-columns: 1fr; }
+      .auth-left { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="auth-wrapper">
+  <!-- Left visual panel -->
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <a href="index.html" class="auth-left-logo">🍽️ Bistro<span>Reserve</span></a>
+    <div class="auth-left-content">
+      <h2>Join the<br><em>Finest Table</em><br>in Town</h2>
+      <p>Create your account and start pre-ordering from the most exquisite restaurants across India.</p>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="auth-right">
+    <div class="auth-box">
+      <div class="auth-box-header">
+        <h3>Create Account</h3>
+        <p>Already have an account? <a href="login.html">Sign in here</a></p>
+      </div>
+
+      <form id="registerForm" novalidate>
+        <div class="name-row">
+          <div class="form-group">
+            <label class="form-label">First Name</label>
+            <div class="input-icon-wrap">
+              <i class="fa-regular fa-user input-icon"></i>
+              <input type="text" id="firstName" class="form-input" placeholder="John" />
+            </div>
+            <div class="form-error" id="firstNameError"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Last Name</label>
+            <input type="text" id="lastName" class="form-input" placeholder="Doe" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="fa-regular fa-envelope input-icon"></i>
+            <input type="email" id="email" class="form-input" placeholder="john@example.com" />
+          </div>
+          <div class="form-error" id="emailError"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone Number</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input type="tel" id="phone" class="form-input" placeholder="+91 98765 43210" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-icon-wrap" style="position:relative">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="password" class="form-input" placeholder="Min. 6 characters" style="padding-right:3rem" />
+            <button type="button" class="password-toggle" id="togglePassword">
+              <i class="fa-regular fa-eye" id="toggleIcon"></i>
+            </button>
+          </div>
+          <div class="form-error" id="passwordError"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm Password</label>
+          <div class="input-icon-wrap" style="position:relative">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="confirmPassword" class="form-input" placeholder="Repeat password" style="padding-right:3rem" />
+          </div>
+          <div class="form-error" id="confirmError"></div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span id="btnText"><i class="fa-solid fa-user-plus"></i> Create Account</span>
+          <span id="btnSpinner" style="display:none"><span class="spinner"></span> Creating...</span>
+        </button>
+
+        <p class="terms-note">By creating an account, you agree to our terms of service and privacy policy.</p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = 'http://localhost:5000/api';
+
+  // Toast helper
+  function showToast(title, msg, type = 'info') {
+    const icons = { info: '🍽️', success: '✅', error: '❌' };
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `
+      <span class="toast-icon">${icons[type]}</span>
+      <div><div class="toast-title">${title}</div><div class="toast-msg">${msg}</div></div>
+      <button class="toast-close" onclick="this.parentElement.remove()">×</button>`;
+    c.appendChild(t);
+    setTimeout(() => { t.classList.add('removing'); setTimeout(() => t.remove(), 300); }, 4000);
+  }
+
+  // Toggle password visibility
+  document.getElementById('togglePassword').addEventListener('click', function () {
+    const input = document.getElementById('password');
+    const icon  = document.getElementById('toggleIcon');
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    icon.className = show ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+  });
+
+  // Form submit
+  document.getElementById('registerForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+    let valid = true;
+
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName  = document.getElementById('lastName').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const phone     = document.getElementById('phone').value.trim();
+    const password  = document.getElementById('password').value;
+    const confirm   = document.getElementById('confirmPassword').value;
+
+    // Clear errors
+    ['firstNameError','emailError','passwordError','confirmError'].forEach(id => {
+      document.getElementById(id).classList.remove('show');
+    });
+
+    if (!firstName) {
+      document.getElementById('firstNameError').textContent = 'First name is required.';
+      document.getElementById('firstNameError').classList.add('show');
+      valid = false;
+    }
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      document.getElementById('emailError').textContent = 'Please enter a valid email.';
+      document.getElementById('emailError').classList.add('show');
+      valid = false;
+    }
+    if (!password || password.length < 6) {
+      document.getElementById('passwordError').textContent = 'Password must be at least 6 characters.';
+      document.getElementById('passwordError').classList.add('show');
+      valid = false;
+    }
+    if (password !== confirm) {
+      document.getElementById('confirmError').textContent = 'Passwords do not match.';
+      document.getElementById('confirmError').classList.add('show');
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    // Show loading
+    document.getElementById('btnText').style.display = 'none';
+    document.getElementById('btnSpinner').style.display = 'flex';
+    document.getElementById('submitBtn').disabled = true;
+
+    try {
+      const res  = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: `${firstName} ${lastName}`.trim(), email, password, phone }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        showToast('Welcome!', `Account created for ${data.user.name}`, 'success');
+        setTimeout(() => window.location.href = 'dashboard.html', 1200);
+      } else {
+        showToast('Registration Failed', data.message, 'error');
+      }
+    } catch (err) {
+      showToast('Connection Error', 'Cannot reach the server. Is it running?', 'error');
+    } finally {
+      document.getElementById('btnText').style.display = 'flex';
+      document.getElementById('btnSpinner').style.display = 'none';
+      document.getElementById('submitBtn').disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

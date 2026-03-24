@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bistro Reserve — Fine Dining Pre-Order</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      position: relative; height: 100vh; min-height: 650px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; text-align: center;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1800') center/cover no-repeat;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(45,8,18,0.55) 0%,
+        rgba(45,8,18,0.72) 50%,
+        rgba(45,8,18,0.9) 100%
+      );
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      max-width: 760px; padding: 0 1.5rem;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: rgba(201,151,58,0.15);
+      border: 1px solid rgba(201,151,58,0.4);
+      color: var(--gold-light); font-size: 0.78rem;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      padding: 0.45rem 1.2rem; border-radius: 50px;
+      margin-bottom: 1.8rem;
+      animation: fadeDown 0.8s ease 0.2s both;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(3rem,7vw,5.5rem);
+      font-weight: 700; color: var(--white); line-height: 1.05;
+      margin-bottom: 1.2rem;
+      animation: fadeDown 0.8s ease 0.4s both;
+    }
+    .hero-title em { color: var(--gold-light); font-style: italic; font-weight: 300; }
+    .hero-subtitle {
+      font-size: 1.1rem; color: rgba(255,255,255,0.75);
+      max-width: 540px; margin: 0 auto 2.8rem;
+      font-weight: 300; line-height: 1.7;
+      animation: fadeDown 0.8s ease 0.6s both;
+    }
+    .hero-actions {
+      display: flex; align-items: center; justify-content: center;
+      gap: 1rem; flex-wrap: wrap;
+      animation: fadeDown 0.8s ease 0.8s both;
+    }
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      z-index: 1; color: rgba(255,255,255,0.5);
+      font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      animation: bounce 2s ease infinite;
+    }
+    .hero-scroll i { font-size: 1rem; }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ── Features strip ───────────────────────────────────── */
+    .features-strip {
+      background: var(--burgundy-deep);
+      padding: 2.2rem 0;
+      border-bottom: 1px solid rgba(201,151,58,0.2);
+    }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: 0; max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;
+    }
+    .feature-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0 2rem; border-right: 1px solid rgba(201,151,58,0.15);
+    }
+    .feature-item:last-child { border-right: none; }
+    .feature-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(201,151,58,0.12);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold); font-size: 1.1rem; flex-shrink: 0;
+    }
+    .feature-text strong { display: block; color: var(--white); font-size: 0.9rem; font-weight: 600; }
+    .feature-text span { color: rgba(255,255,255,0.5); font-size: 0.78rem; }
+
+    /* ── How it works ─────────────────────────────────────── */
+    .steps-section { background: var(--cream); }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 2.5rem;
+      max-width: 1000px; margin: 0 auto;
+    }
+    .step-card {
+      text-align: center; padding: 2.5rem 2rem;
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm); position: relative;
+      transition: var(--transition);
+    }
+    .step-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-md); }
+    .step-number {
+      position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg,var(--gold),var(--gold-light));
+      color: var(--burgundy-deep); font-size: 0.85rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: var(--shadow-gold);
+    }
+    .step-icon { font-size: 2.2rem; margin-bottom: 1rem; }
+    .step-card h4 { font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 0.6rem; }
+    .step-card p  { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; }
+
+    /* ── Featured restaurants ──────────────────────────────── */
+    .restaurants-section { background: var(--burgundy-deep); }
+    .restaurants-section .section-header h2 { color: var(--white); }
+    .restaurants-section .section-tag { color: var(--gold); }
+    .restaurants-grid {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 1.8rem;
+    }
+    .rest-card {
+      border-radius: var(--radius-lg); overflow: hidden;
+      position: relative; cursor: pointer;
+      box-shadow: var(--shadow-md); transition: var(--transition);
+    }
+    .rest-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: var(--shadow-lg); }
+    .rest-card-img {
+      height: 220px; overflow: hidden;
+    }
+    .rest-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .rest-card:hover .rest-card-img img { transform: scale(1.08); }
+    .rest-card-body {
+      background: var(--white); padding: 1.4rem 1.6rem;
+    }
+    .rest-card-body h4 {
+      font-family: var(--font-display); font-size: 1.25rem;
+      color: var(--burgundy-deep); margin-bottom: 0.3rem;
+    }
+    .rest-card-body p { font-size: 0.82rem; color: var(--text-mid); margin-bottom: 0.8rem; }
+    .rest-rating { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; }
+    .rest-rating i { color: var(--gold); font-size: 0.75rem; }
+    .rest-rating span { font-weight: 600; color: var(--text-dark); }
+
+    /* ── CTA section ──────────────────────────────────────── */
+    .cta-section {
+      background: linear-gradient(135deg, var(--burgundy-deep), var(--burgundy));
+      text-align: center; padding: 6rem 0;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200') center/cover;
+      opacity: 0.08;
+    }
+    .cta-section > * { position: relative; z-index: 1; }
+    .cta-section h2 { color: var(--white); margin-bottom: 1rem; }
+    .cta-section p  { color: rgba(255,255,255,0.7); font-size: 1.05rem; margin-bottom: 2.5rem; }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    footer {
+      background: var(--charcoal); color: rgba(255,255,255,0.5);
+      text-align: center; padding: 2rem;
+      font-size: 0.82rem;
+    }
+    footer a { color: var(--gold); }
+
+    @media (max-width: 900px) {
+      .features-grid { grid-template-columns: repeat(2,1fr); }
+      .feature-item:nth-child(2) { border-right: none; }
+      .steps-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .restaurants-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 600px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .feature-item { border-right: none; border-bottom: 1px solid rgba(201,151,58,0.15); padding: 1rem 0; }
+      .restaurants-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navbar ──────────────────────────────────────────────── -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo">🍽️ Bistro<span>Reserve</span></div>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#restaurants">Restaurants</a></li>
+    <li><a href="login.html">Login</a></li>
+    <li><a href="register.html" class="nav-cta">Reserve Now</a></li>
+  </ul>
+</nav>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ── Hero ────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-tag"><i class="fa-solid fa-star"></i> Fine Dining, Pre-Ordered</div>
+    <h1 class="hero-title">Your Table.<br>Your Time.<br><em>Your Feast.</em></h1>
+    <p class="hero-subtitle">Browse curated restaurants, craft your perfect meal, and schedule it for exactly when you want it. No waiting. No rush.</p>
+    <div class="hero-actions">
+      <a href="register.html" class="btn btn-gold btn-lg">
+        <i class="fa-solid fa-utensils"></i> Start Pre-Ordering
+      </a>
+      <a href="login.html" class="btn btn-lg" style="background:rgba(255,255,255,0.12);color:var(--white);border:1px solid rgba(255,255,255,0.25);">
+        <i class="fa-regular fa-user"></i> Sign In
+      </a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span>Scroll</span>
+    <i class="fa-solid fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- ── Features Strip ──────────────────────────────────────── -->
+<div class="features-strip">
+  <div class="features-grid">
+    <div class="feature-item">
+      <div class="feature-icon"><i class="fa-solid fa-location-dot"></i></div>
+      <div class="feature-text">
+        <strong>Multiple Cities</strong>
+        <span>5 cities, 10+ restaurants</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><i class="fa-regular fa-clock"></i></div>
+      <div class="feature-text">
+        <strong>Schedule Orders</strong>
+        <span>Pick your date & time</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><i class="fa-solid fa-bell"></i></div>
+      <div class="feature-text">
+        <strong>Live Updates</strong>
+        <span>Real-time order tracking</span>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="feature-text">
+        <strong>Secure & Fast</strong>
+        <span>JWT-protected accounts</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── How It Works ────────────────────────────────────────── -->
+<section class="section steps-section" id="how-it-works">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-tag">Simple Process</div>
+      <h2>Reserve in Three Steps</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card fade-up">
+        <div class="step-number">1</div>
+        <div class="step-icon">📍</div>
+        <h4>Choose Your City</h4>
+        <p>Select your location and discover the finest restaurants near you, curated for quality and experience.</p>
+      </div>
+      <div class="step-card fade-up" style="transition-delay:0.15s">
+        <div class="step-number">2</div>
+        <div class="step-icon">🍽️</div>
+        <h4>Build Your Menu</h4>
+        <p>Browse each restaurant's full menu, add items to your cart, and customise your perfect meal.</p>
+      </div>
+      <div class="step-card fade-up" style="transition-delay:0.3s">
+        <div class="step-number">3</div>
+        <div class="step-icon">📅</div>
+        <h4>Schedule & Confirm</h4>
+        <p>Pick your preferred date and time. We'll notify the kitchen instantly and keep you updated live.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Featured Restaurants ────────────────────────────────── -->
+<section class="section restaurants-section" id="restaurants">
+  <div class="container">
+    <div class="section-header fade-up">
+      <div class="section-tag">Our Partners</div>
+      <h2>Featured Restaurants</h2>
+      <div class="divider"></div>
+    </div>
+    <div class="restaurants-grid" id="featuredRestaurants">
+      <!-- Loaded from API -->
+      <div class="rest-card fade-up">
+        <div class="rest-card-img"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600" alt="" /></div>
+        <div class="rest-card-body">
+          <h4>The Nilgiri Bistro</h4>
+          <p>Mountain-inspired continental dishes with Nilgiri herbs and spices.</p>
+          <div class="rest-rating">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star-half-stroke"></i>
+            <span>4.6</span>
+          </div>
+        </div>
+      </div>
+      <div class="rest-card fade-up" style="transition-delay:0.15s">
+        <div class="rest-card-img"><img src="https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=600" alt="" /></div>
+        <div class="rest-card-body">
+          <h4>Meenakshi Heritage</h4>
+          <p>Royal Pandya-era recipes reimagined for the modern palate.</p>
+          <div class="rest-rating">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <span>4.8</span>
+          </div>
+        </div>
+      </div>
+      <div class="rest-card fade-up" style="transition-delay:0.3s">
+        <div class="rest-card-img"><img src="https://images.unsplash.com/photo-1506354666786-959d6d497f1a?w=600" alt="" /></div>
+        <div class="rest-card-body">
+          <h4>Sea View Supper Club</h4>
+          <p>Upscale dining with Arabian Sea sunsets and live jazz.</p>
+          <div class="rest-rating">
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+            <i class="fa-solid fa-star"></i>
+            <span>4.9</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:3rem;" class="fade-up">
+      <a href="register.html" class="btn btn-gold btn-lg">View All Restaurants →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ──────────────────────────────────────────────────── -->
+<section class="cta-section fade-up">
+  <div class="container">
+    <h2>Ready to Reserve Your Perfect Meal?</h2>
+    <p>Join thousands of food lovers who pre-order from the finest restaurants across India.</p>
+    <a href="register.html" class="btn btn-gold btn-lg">
+      <i class="fa-solid fa-utensils"></i> Create Free Account
+    </a>
+  </div>
+</section>
+
+<!-- ── Footer ───────────────────────────────────────────────── -->
+<footer>
+  <p>© 2025 BistroReserve. Crafted with ❤️ for food lovers. |
+    <a href="login.html">Staff Login</a>
+  </p>
+</footer>
+
+<script>
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // Fade-up on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Redirect logged-in users
+  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user') || 'null');
+  if (token && user) {
+    if (user.role === 'staff' || user.role === 'admin') {
+      window.location.href = 'staff-dashboard.html';
+    } else {
+      window.location.href = 'dashboard.html';
+    }
+  }
+</script>
+</body>
+</html>
