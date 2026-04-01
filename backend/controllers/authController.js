@@ -8,7 +8,7 @@ const SALT_ROUNDS = 10;
 /** Generate a signed JWT for a user record */
 const signToken = (user) =>
   jwt.sign(
-    { id: user.id, name: user.name, email: user.email, role: user.role },
+    { id: user.id, name: user.name, email: user.email, role: user.role, restaurant_id: user.restaurant_id || null },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
